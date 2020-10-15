@@ -16,11 +16,6 @@ def calculate_mse(predictions, test_y):
     return sum([(p - y) ** 2 for p, y in zip(predictions, test_y)]) / len(test_y)
 
 
-def calculate_smape_score(y_test, predictions):
-    smape = calculate_smape(y_test, predictions)
-    return 100 * (0.02 - smape) / (0.02 - 0.01)
-
-
 def predict(weights, x_sample):
     return sum([w * x for w, x in zip(weights, x_sample)])
 
@@ -48,10 +43,10 @@ def calculate_gradient_for_mse(weights, x_sample, y):
     return [(prediction - y) * x + w for x, w in zip(x_sample, weights)]
 
 
-def update_weights(weights, x_batch, y_batch, lr):
+def update_weights(weights, x_batch, y_batch, lr, calculate_grad):
     weights_gradients_sum = [0] * len(weights)
     for i in range(len(x_batch)):
-        cur_weights_gradient = calculate_gradient_for_mape(weights, x_batch[i], y_batch[i])
+        cur_weights_gradient = calculate_grad(weights, x_batch[i], y_batch[i])
         weights_gradients_sum = [grad_sum + cur_grad
                                  for grad_sum, cur_grad in zip(weights_gradients_sum, cur_weights_gradient)]
     # if e_i % 1 == 0:
@@ -131,8 +126,7 @@ if __name__ == '__main__':
                 weights,
                 train_x_normalized[batch_size * b_i:batch_size * b_i + batch_size],
                 train_y[batch_size * b_i:batch_size * b_i + batch_size],
-                lr
-            )
+                lr)
 
     # print('Wights: {}'.format(' '.join([str(w) for w in weights])))
     # predictions = [predict(weights, x_sample) for x_sample in train_x_normalized]
